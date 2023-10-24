@@ -3,7 +3,7 @@ const users = require('../mocks/Users');
 module.exports = {
   listUsers(request, response) {
     const { order } = request.query;
-    
+
     const sortedUsers = users.sort((a, b) => {
       if (order === 'desc') {
         return a.id > b.id ? -1 : 1;
@@ -22,34 +22,24 @@ module.exports = {
     const user = users.find((user) => user.id === Number(id));
 
     if (!user) {
-      response.send(400, { error : 'User not found' });
+      response.send(400, { error: 'User not found' });
     }
 
     response.send(200, user);
   },
 
   createUser(request, response) {
-    let body = '';
+    const { name } = request.body;
 
-    request.on('data', (chunck) => {
-      body += chunck;
-    });
+    const lastUserId = users[users.length - 1].id;
 
-    request.on('end', () => {
-      body = JSON.parse(body);
+    const newUser = {
+      id: lastUserId + 1,
+      name,
+    }
 
-      const lastUserId = users[users.length - 1].id;
+    users.push(newUser);
 
-      const newUser = {
-        id: lastUserId + 1,
-        name: body.name,
-      }
-
-      users.push(newUser);
-
-      response.send(200, newUser);
-    })
-
-
+    response.send(200, newUser);
   }
 };
